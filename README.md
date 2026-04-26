@@ -179,5 +179,5 @@ The entire frontend was redesigned from neon-noir maximalist to a clean, Claude-
 ---
 
 <p align="center">
-  <sub>Built by whois with Claude Code.</sub>
+  <sub>Built by FReSh with Claude Code.</sub>
 </p>
