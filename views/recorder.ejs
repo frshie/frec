@@ -1,0 +1,182 @@
+<!-- views/recorder.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FREC — Record</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/recorder.css">
+</head>
+<body>
+  <div class="bg-subtle"></div>
+
+  <nav class="nav">
+    <a href="/" class="nav-logo">FREC</a>
+    <div class="nav-status" id="nav-status">
+      <span class="status-dot" id="status-dot"></span>
+      <span class="status-label" id="status-label">Ready</span>
+    </div>
+  </nav>
+
+  <main class="app">
+    <div class="recorder-card" id="recorder-card">
+      <!-- Preview Area -->
+      <div class="preview" id="preview">
+        <div class="preview-placeholder" id="preview-placeholder">
+          <svg class="placeholder-icon" width="64" height="64" viewBox="0 0 64 64" fill="none">
+            <rect x="4" y="12" width="56" height="40" rx="8" stroke="currentColor" stroke-width="2.5"/>
+            <circle cx="32" cy="32" r="10" stroke="currentColor" stroke-width="2.5"/>
+            <path d="M32 22v20M22 32h20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          <p class="placeholder-text">Select a mode to begin</p>
+          <p class="placeholder-hint">Screen · Tab · Camera · or a combination</p>
+        </div>
+        <video id="video-preview" autoplay muted playsinline></video>
+        <div class="camera-pip" id="camera-overlay">
+          <div class="pip-drag-handle"></div>
+          <video id="camera-video" autoplay muted playsinline></video>
+        </div>
+      </div>
+
+      <!-- Recording Indicator -->
+      <div class="rec-live" id="rec-live">
+        <div class="rec-live-dot"></div>
+        <span>REC</span>
+        <span class="rec-live-time" id="rec-live-time">00:00</span>
+      </div>
+
+      <!-- Mode Selector -->
+      <div class="modes" id="modes">
+        <button class="mode-btn" data-mode="screen">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          Screen
+        </button>
+        <button class="mode-btn" data-mode="tab">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <line x1="2" y1="9" x2="22" y2="9"/>
+          </svg>
+          Tab
+        </button>
+        <button class="mode-btn" data-mode="camera">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 7l-7 5 7 5V7z"/>
+            <rect x="1" y="5" width="15" height="14" rx="2"/>
+          </svg>
+          Camera
+        </button>
+        <button class="mode-btn" data-mode="screen-camera">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" opacity="0.5"/>
+            <path d="M23 7l-5 3.5 5 3.5V7z"/>
+          </svg>
+          S+C
+        </button>
+        <button class="mode-btn" data-mode="tab-camera">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" opacity="0.5"/>
+            <line x1="2" y1="9" x2="22" y2="9" opacity="0.5"/>
+            <path d="M23 7l-5 3.5 5 3.5V7z"/>
+          </svg>
+          T+C
+        </button>
+      </div>
+
+      <!-- Timer -->
+      <div class="timer" id="timer">00:00</div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button id="start-btn" class="ctrl-btn ctrl-record" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="8"/>
+          </svg>
+          <span>Start Recording</span>
+        </button>
+        <button id="stop-btn" class="ctrl-btn ctrl-stop" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="6" y="6" width="12" height="12" rx="2"/>
+          </svg>
+          <span>Stop</span>
+        </button>
+        <button id="pause-btn" class="ctrl-btn ctrl-pause" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="6" y="4" width="4" height="16" rx="1"/>
+            <rect x="14" y="4" width="4" height="16" rx="1"/>
+          </svg>
+          <span id="pause-label">Pause</span>
+        </button>
+      </div>
+
+      <!-- Upload Section -->
+      <div class="panel" id="upload-section">
+        <div class="panel-inner">
+          <div class="upload-field">
+            <input type="text" id="title-input" placeholder="Give your recording a title..." maxlength="200">
+            <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/>
+              <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/>
+            </svg>
+          </div>
+          <div class="upload-progress" id="progress-bar">
+            <div class="upload-progress-bar">
+              <div class="upload-progress-fill" id="progress-fill"></div>
+            </div>
+            <span class="upload-progress-pct" id="progress-pct">0%</span>
+          </div>
+          <button id="upload-btn" class="ctrl-btn ctrl-upload">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span>Upload</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Result Section -->
+      <div class="panel result-panel" id="result-section">
+        <div class="panel-inner">
+          <div class="result-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <div class="result-text">
+            <p class="result-title">Recording uploaded</p>
+            <a id="result-link" href="#" target="_blank"></a>
+          </div>
+          <div class="result-actions">
+            <button class="ctrl-btn ctrl-copy" onclick="copyResultLink()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              <span>Copy</span>
+            </button>
+            <button id="record-new-btn" class="ctrl-btn ctrl-record-new">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+              </svg>
+              <span>New Recording</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/recorder.js"></script>
+</body>
+</html>

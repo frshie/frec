@@ -1,0 +1,622 @@
+/* ═══════════════════════════════════════════
+   FREC — Recorder Page
+   Refined Minimal Design
+   ═══════════════════════════════════════════ */
+
+/* ── Reset & Base ── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-primary: #19191d;
+  --bg-secondary: #212126;
+  --surface: #2a2a30;
+  --surface-hover: #32323a;
+  --surface-active: #3d3d45;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.14);
+  --border-active: rgba(255, 255, 255, 0.22);
+
+  --accent: #6ba58a;
+  --accent-hover: #7ec09e;
+  --accent-dim: rgba(107, 165, 138, 0.15);
+
+  --recording: #d45555;
+  --recording-dim: rgba(212, 85, 85, 0.15);
+
+  --text: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-muted: rgba(255, 255, 255, 0.35);
+
+  --font-sans: 'Outfit', sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(0, 0, 0, 0.15);
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Subtle Background ── */
+.bg-subtle {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, rgba(107, 165, 138, 0.03) 0%, transparent 65%);
+}
+
+/* ── Navigation ── */
+.nav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+}
+
+.nav-logo {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-logo::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: 3px;
+}
+
+.nav-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.nav-status.recording {
+  border-color: var(--recording-dim);
+  background: rgba(212, 85, 85, 0.08);
+  color: var(--recording);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: all 0.3s ease;
+}
+
+.nav-status.recording .status-dot {
+  background: var(--recording);
+  animation: statusPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ── Main Layout ── */
+.app {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 32px 40px;
+  overflow-y: auto;
+}
+
+/* ── Recorder Card ── */
+.recorder-card {
+  width: 100%;
+  max-width: 820px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 36px;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.3s ease;
+}
+
+.recorder-card.recording-active {
+  border-color: var(--recording-dim);
+}
+
+/* ── Preview Area ── */
+.preview {
+  position: relative;
+  background: #000;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+}
+
+.preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: none;
+}
+
+.preview-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 40px;
+}
+
+.placeholder-icon {
+  opacity: 0.25;
+  margin-bottom: 4px;
+  color: var(--text-muted);
+}
+
+.placeholder-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.placeholder-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ── Camera Picture-in-Picture ── */
+.camera-pip {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 180px;
+  height: 135px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 2px solid var(--border);
+  display: none;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+}
+
+.camera-pip video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block !important;
+}
+
+.pip-drag-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  cursor: grab;
+  z-index: 1;
+}
+
+/* ── Recording Live Indicator ── */
+.rec-live {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: -4px 0 18px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--recording);
+}
+
+.rec-live.visible { display: flex; }
+
+.rec-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--recording);
+  animation: statusPulse 1.2s ease-in-out infinite;
+}
+
+.rec-live-time {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Mode Buttons ── */
+.modes {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mode-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+
+.mode-btn.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mode-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.mode-btn svg {
+  flex-shrink: 0;
+}
+
+/* ── Timer ── */
+.timer {
+  font-family: var(--font-sans);
+  font-size: 64px;
+  font-weight: 300;
+  line-height: 1;
+  text-align: center;
+  letter-spacing: 2px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  margin-bottom: 20px;
+  transition: color 0.3s ease;
+}
+
+.timer.recording {
+  color: var(--recording);
+}
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.ctrl-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.ctrl-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.ctrl-btn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+
+.ctrl-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Record Button */
+.ctrl-record {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  min-width: 170px;
+  justify-content: center;
+}
+
+.ctrl-record:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: #fff;
+}
+
+/* Stop Button */
+.ctrl-stop {
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+.ctrl-stop:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+
+/* Upload Button */
+.ctrl-upload {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.ctrl-upload:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: #fff;
+}
+
+/* ── Panels (Upload & Result) ── */
+.panel {
+  display: none;
+  margin-top: 20px;
+}
+
+.panel.visible { display: block; }
+
+.panel-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+}
+
+/* Upload Panel */
+.upload-field {
+  flex: 1;
+  position: relative;
+  min-width: 200px;
+}
+
+.upload-field input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  background: var(--bg-primary);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.upload-field input::placeholder {
+  color: var(--text-muted);
+}
+
+.upload-field input:focus {
+  border-color: var(--accent);
+}
+
+.field-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.upload-progress {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 150px;
+}
+
+.upload-progress.visible { display: flex; }
+
+.upload-progress-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--surface);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.upload-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  width: 0%;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.upload-progress-pct {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Result Panel */
+.result-panel .panel-inner {
+  gap: 14px;
+}
+
+.result-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.result-text {
+  flex: 1;
+  min-width: 150px;
+}
+
+.result-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.result-text a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 13px;
+  word-break: break-all;
+  transition: color 0.2s;
+}
+
+.result-text a:hover {
+  color: var(--accent-hover);
+}
+
+.result-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ctrl-copy {
+  padding: 8px 18px;
+  font-size: 13px;
+}
+
+.ctrl-copy.copied {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ctrl-record-new {
+  padding: 8px 18px;
+  font-size: 13px;
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.recorder-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.mode-btn:nth-child(1) { animation: fadeInUp 0.4s ease-out 0.08s both; }
+.mode-btn:nth-child(2) { animation: fadeInUp 0.4s ease-out 0.12s both; }
+.mode-btn:nth-child(3) { animation: fadeInUp 0.4s ease-out 0.16s both; }
+.mode-btn:nth-child(4) { animation: fadeInUp 0.4s ease-out 0.2s both; }
+.mode-btn:nth-child(5) { animation: fadeInUp 0.4s ease-out 0.24s both; }
+
+.timer { animation: fadeInUp 0.4s ease-out 0.3s both; }
+.controls { animation: fadeInUp 0.4s ease-out 0.35s both; }
+
+.panel.visible .panel-inner {
+  animation: fadeInUp 0.35s ease-out;
+}
+
+/* ── Scrollbar ── */
+.app::-webkit-scrollbar { width: 6px; }
+.app::-webkit-scrollbar-track { background: transparent; }
+.app::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+.app::-webkit-scrollbar-thumb:hover { background: var(--border-active); }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .nav { padding: 14px 18px; }
+  .nav-logo { font-size: 18px; }
+  .app { padding: 16px; }
+  .recorder-card { padding: 18px; border-radius: var(--radius-lg); }
+  .timer { font-size: 42px; }
+  .controls { flex-wrap: wrap; }
+  .ctrl-record { min-width: 140px; }
+  .camera-pip { width: 120px; height: 90px; bottom: 10px; right: 10px; }
+  .panel-inner { flex-direction: column; align-items: stretch; }
+  .result-actions { justify-content: center; }
+  .upload-field input { padding: 10px 14px 10px 36px; }
+}
